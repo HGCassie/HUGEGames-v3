@@ -262,6 +262,9 @@ function UILib:CreateUI()
 	MainSection.Position = UDim2.new(0.236981466, 0, 0.0263559967, 0)
 	MainSection.Size = UDim2.new(0.750661969, 0, 0.95225364, 0)
 
+    function Window:Tab(tabTitle)
+        return Window:CreateTab(tabTitle)
+    end
 	function Window:CreateTab(tabTitle)
 		local Tab = {
 			title = tabTitle,
@@ -1657,6 +1660,9 @@ function UILib:CreateUI()
 		return Tab
 	end
 	return Window
+    function UILib:CreateWindow(Title, Version, HOL)
+        return UILib:CreateUI()
+    end
 end
 
 return UILib
