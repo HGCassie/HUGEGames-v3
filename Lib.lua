@@ -13,7 +13,7 @@ local MovementTweenTime = .15
 local isUsingSlider = false
 
 local BaseItemSize_Section = UDim2.new(0, 290, 0, 30)
-local BaseItemSize_Nested = UDim2.new(0, 275, 0, 30)
+local BaseItemSize_Nested = UDim2.new(0, 250, 0, 30)
 local BaseSection_Size = UDim2.new(0, 306, 0, 40)
 
 function UILib:CreateUI()
@@ -768,6 +768,17 @@ function UILib:CreateUI()
 					local Mult = 0.9
 					local TweenTime = 0.05
 					local Debounce = false
+					local isHovering = false
+					
+					Frame.MouseEnter:Connect(function()
+						isHovering = true
+						game.TweenService:Create(UIStroke, TweenInfo.new(TweenTime), {Color=Color3.fromRGB(0,155,255)}):Play()
+					end)
+					Frame.MouseLeave:Connect(function()
+						isHovering = false
+						game.TweenService:Create(UIStroke, TweenInfo.new(TweenTime), {Color=Color3.fromRGB(50,50,50)}):Play()
+					end)
+					
 					Frame.InputBegan:Connect(function(Input)
 						if Input.UserInputType == Enum.UserInputType.MouseButton1 and Input.UserInputState == Enum.UserInputState.Begin and (not Debounce) then		
 							Debounce = true
@@ -780,7 +791,9 @@ function UILib:CreateUI()
 								TweenTime,
 								false,
 								function()
-									game.TweenService:Create(UIStroke, TweenInfo.new(TweenTime), {Color=Color3.fromRGB(50,50,50)}):Play()
+									if not isHovering then
+										game.TweenService:Create(UIStroke, TweenInfo.new(TweenTime), {Color=Color3.fromRGB(50,50,50)}):Play()
+									end
 									Frame:TweenSize(
 										UDim2.new(0.271149337, 0, 0.75, 0),
 										Enum.EasingDirection.Out,
@@ -887,7 +900,7 @@ function UILib:CreateUI()
 				Slider.Name = "Slider"
 				Slider.Parent = DropDown
 				Slider.AnchorPoint = Vector2.new(0.5, 0)
-				Slider.BackgroundColor3 = Color3.new(0.156863, 0.156863, 0.156863)
+				Slider.BackgroundColor3 = Color3.new(0.176471, 0.176471, 0.176471)
 				Slider.BorderColor3 = Color3.new(0.137255, 0.137255, 0.137255)
 				Slider.BorderSizePixel = 0
 				Slider.Position = UDim2.new(0.44607842, 0, 0.540000021, 0)
@@ -918,7 +931,8 @@ function UILib:CreateUI()
 				Frame.BorderColor3 = Color3.new(0, 0, 0)
 				Frame.BorderSizePixel = 0
 				Frame.Position = UDim2.new(0.980000019, 0, 0.491577536, 0)
-				Frame.Size = UDim2.new(0.487930983, 0, 0.283155054, 0)
+				--Frame.Size = UDim2.new(0.487930983, 0, 0.283155054, 0)
+				Frame.Size = UDim2.new(0.487930983, 0, 0.5, 0)
 
 				UICorner_2.Parent = Frame
 
@@ -928,7 +942,7 @@ function UILib:CreateUI()
 				Frame_2.BorderColor3 = Color3.new(0, 0, 0)
 				Frame_2.BorderSizePixel = 0
 				Frame_2.Position = UDim2.new(0, 0, 0.5, 0)
-				Frame_2.Size = UDim2.new(0.5, 0, 1, 0)
+				Frame_2.Size = UDim2.new(0, 0, 1, 0)
 
 				UICorner_3.Parent = Frame_2
 
@@ -1030,6 +1044,7 @@ function UILib:CreateUI()
 					local Diff = Mouse.X - Frame.AbsolutePosition.X
 					if Diff < 0 then Diff = 0 end
 					local Math = Diff / Frame.AbsoluteSize.X
+					if Math > 1 then Math = 1 end
 					local Value = tonumber(string.format("%." .. (O or 0) .. "f", (MaxVal*Math)))
 					Frame_2.Size = UDim2.new(
 						Math,0,
@@ -1056,17 +1071,114 @@ function UILib:CreateUI()
 							lastInput = tick()
 							CalculateMath()
 						end);CalculateMath()
-						Frame.InputEnded:Wait(Enum.UserInputState.End)
-						Connection:Disconnect()
-						isUsingSlider = false
+						
+						Frame.InputEnded:Connect(function(Input)
+							if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+								Connection:Disconnect()
+								isUsingSlider = false
+							end
+						end)
 					end
 				end)
 
 
 
 			end
+			
+			function Section:Code(InputTitle, callback, Extra) -- Experimental Function Lol
+				local Extra = Extra or {}
+				local Input = Instance.new("Frame")
+				local UICorner = Instance.new("UICorner")
+				local Title = Instance.new("TextLabel")
+				local Frame = Instance.new("Frame")
+				local UICorner_2 = Instance.new("UICorner")
+				local TextBox = Instance.new("TextBox")
+				local UIPadding = Instance.new("UIPadding")
 
-			function Section:Input(InputTitle, PlaceholderText, callback, Extra)
+				Input.Name = "Input"
+				Input.Parent = DropDown
+				Input.AnchorPoint = Vector2.new(0.5, 0)
+				Input.BackgroundColor3 = Color3.new(0.156863, 0.156863, 0.156863)
+				Input.BorderColor3 = Color3.new(0.137255, 0.137255, 0.137255)
+				Input.BorderSizePixel = 0
+				Input.Position = UDim2.new(0.473856211, 0, 0.560000002, 0)
+				Input.Size = UDim2.new(
+					0,BaseItemSize_Section.X.Offset,
+					0,150
+				)
+
+				UICorner.Parent = Input
+
+				Title.Name = "Title"
+				Title.Parent = Input
+				--Title.AnchorPoint = Vector2.new(0.5, 0)
+				Title.BackgroundColor3 = Color3.new(1, 1, 1)
+				Title.BackgroundTransparency = 1
+				Title.BorderColor3 = Color3.new(0, 0, 0)
+				Title.BorderSizePixel = 0
+				Title.Position = UDim2.new(0.025, 0, 0.05, 0)
+				Title.Size = UDim2.new(0.5, 0, 0.1, 0)
+				Title.Font = Enum.Font.FredokaOne
+				Title.Text = InputTitle
+				Title.TextColor3 = Color3.new(0.686275, 0.686275, 0.686275)
+				Title.TextScaled = true
+				Title.TextSize = 14
+				Title.TextWrapped = true
+				Title.TextXAlignment = Enum.TextXAlignment.Left
+
+				Frame.Parent = Input
+				Frame.AnchorPoint = Vector2.new(.5, 0.5)
+				Frame.BackgroundColor3 = Color3.new(0.156863, 0.156863, 0.156863)
+				Frame.BorderColor3 = Color3.new(0, 0, 0)
+				Frame.BorderSizePixel = 0
+				Frame.Position = UDim2.new(0.5, 0, 0.55, 0)
+				Frame.Size = UDim2.new(.95, 0, 0.75, 0)
+
+				UICorner_2.Parent = Frame
+
+				TextBox.Parent = Frame
+				TextLabel.RichText = true
+				TextBox.BackgroundColor3 = Color3.new(1, 1, 1)
+				TextBox.BackgroundTransparency = 1
+				TextBox.BorderColor3 = Color3.new(0, 0, 0)
+				TextBox.BorderSizePixel = 0
+				TextBox.Size = UDim2.new(1, 0, 1, 0)
+				TextBox.Font = Enum.Font.FredokaOne
+				TextBox.PlaceholderText = "Paste Scripts here:"
+				TextBox.Text = ""
+				TextBox.TextColor3 = Color3.new(1, 1, 1)
+				TextBox.TextScaled = true
+				TextBox.TextSize = 14
+				TextBox.TextWrapped = true
+				TextBox.TextXAlignment = Enum.TextXAlignment.Left
+				TextBox.TextYAlignment = Enum.TextYAlignment.Top
+				
+				local Padding = Instance.new("UIPadding", TextBox)
+				Padding.PaddingTop = UDim.new(.05,0)
+				Padding.PaddingLeft = UDim.new(.05,0)
+				
+				local TextSizeConstrant = Instance.new("UITextSizeConstraint", TextBox)
+				TextSizeConstrant.MaxTextSize = 16
+
+				local Stroke = Instance.new("UIStroke", Frame)
+				Stroke.Color = Color3.fromRGB(50,50,50)
+
+				UIPadding.Parent = TextBox
+				UIPadding.PaddingBottom = UDim.new(0.200000003, 0)
+				UIPadding.PaddingLeft = UDim.new(0.200000003, 0)
+				UIPadding.PaddingRight = UDim.new(0.200000003, 0)
+				UIPadding.PaddingTop = UDim.new(0.200000003, 0)
+
+				TextBox.FocusLost:Connect(function()
+					if TextBox.Text ~= "" or Extra.AllowEmptyInput then
+						callback(TextBox.Text)
+						TextBox.Text = ""
+					end
+				end)
+			end
+
+
+			function Section:Input(InputTitle, callback, Extra)
 				local Extra = Extra or {}
 				local Input = Instance.new("Frame")
 				local UICorner = Instance.new("UICorner")
@@ -1127,6 +1239,9 @@ function UILib:CreateUI()
 				TextBox.TextScaled = true
 				TextBox.TextSize = 14
 				TextBox.TextWrapped = true
+				
+				local Stroke = Instance.new("UIStroke", Frame)
+				Stroke.Color = Color3.fromRGB(50,50,50)
 
 				UIPadding.Parent = TextBox
 				UIPadding.PaddingBottom = UDim.new(0.200000003, 0)
@@ -1208,6 +1323,17 @@ function UILib:CreateUI()
 				local Mult = 0.9
 				local TweenTime = 0.05
 				local Debounce = false
+				local isHovering = false
+				
+				Frame.MouseEnter:Connect(function()
+					isHovering = true
+					game.TweenService:Create(UIStroke, TweenInfo.new(TweenTime), {Color=Color3.fromRGB(0,155,255)}):Play()
+				end)
+				Frame.MouseLeave:Connect(function()
+					isHovering = false
+					game.TweenService:Create(UIStroke, TweenInfo.new(TweenTime), {Color=Color3.fromRGB(50,50,50)}):Play()
+				end)
+				
 				Frame.InputBegan:Connect(function(Input)
 					if Input.UserInputType == Enum.UserInputType.MouseButton1 and Input.UserInputState == Enum.UserInputState.Begin and (not Debounce) then		
 						Debounce = true
@@ -1220,7 +1346,9 @@ function UILib:CreateUI()
 							TweenTime,
 							false,
 							function()
-								game.TweenService:Create(UIStroke, TweenInfo.new(TweenTime), {Color=Color3.fromRGB(50,50,50)}):Play()
+								if not isHovering then
+									game.TweenService:Create(UIStroke, TweenInfo.new(TweenTime), {Color=Color3.fromRGB(50,50,50)}):Play()
+								end
 								Frame:TweenSize(
 									UDim2.new(0.271149337, 0, 0.75, 0),
 									Enum.EasingDirection.Out,
@@ -1237,6 +1365,7 @@ function UILib:CreateUI()
 			end
 
 			function Section:Toggle(ToggleTitle, isToggled, callback, Extra)
+				local isToggled = not isToggled
 				local Extra = Extra or {}
 				local Toggle = Instance.new("Frame")
 				table.insert(sectionedElements, Toggle)
@@ -1255,19 +1384,20 @@ function UILib:CreateUI()
 				Toggle.BorderColor3 = Color3.new(0.137255, 0.137255, 0.137255)
 				Toggle.BorderSizePixel = 0
 				Toggle.Position = UDim2.new(0.5, 0, 0, 0)
-				Toggle.Size = UDim2.new(0,290,0,40)
+				--Toggle.Size = UDim2.new(0,290,0,40)
+				Toggle.Size = BaseItemSize_Section
 
 				UICorner.Parent = Toggle
 
 				Title.Name = "Title"
 				Title.Parent = Toggle
-				Title.AnchorPoint = Vector2.new(0.5, 0)
+				Title.AnchorPoint = Vector2.new(0.5, .5)
 				Title.BackgroundColor3 = Color3.new(1, 1, 1)
 				Title.BackgroundTransparency = 1
 				Title.BorderColor3 = Color3.new(0, 0, 0)
 				Title.BorderSizePixel = 0
-				Title.Position = UDim2.new(0.35952127, 0, 0.316090286, 0)
-				Title.Size = UDim2.new(0.667221844, 0, 0.354564667, 0)
+				Title.Position = UDim2.new(0.35952127, 0, 0.5, 0)
+				Title.Size = UDim2.new(0.667221844, 0, 0.5, 0)
 				Title.Font = Enum.Font.FredokaOne
 				Title.Text = ToggleTitle or "Toggle"
 				Title.TextColor3 = Color3.new(1, 1, 1)
@@ -1321,7 +1451,7 @@ function UILib:CreateUI()
 
 				local toggled = isToggled
 				local toggleDB = false
-				Frame.MouseButton1Click:Connect(function()
+				function Toggle()
 					if not toggleDB then
 						toggleDB = true
 
@@ -1354,8 +1484,11 @@ function UILib:CreateUI()
 						end
 						callback(isToggled)
 					end
+				end
+				Frame.MouseButton1Click:Connect(function()
+					Toggle()
 				end)
-				callback(isToggled)
+				Toggle()
 			end
 
 			function Section:Section(sectionTitle)
@@ -1730,6 +1863,17 @@ function UILib:CreateUI()
 						local Mult = 0.9
 						local TweenTime = 0.05
 						local Debounce = false
+						local isHovering = false
+
+						Frame.MouseEnter:Connect(function()
+							isHovering = true
+							game.TweenService:Create(UIStroke, TweenInfo.new(TweenTime), {Color=Color3.fromRGB(0,155,255)}):Play()
+						end)
+						Frame.MouseLeave:Connect(function()
+							isHovering = false
+							game.TweenService:Create(UIStroke, TweenInfo.new(TweenTime), {Color=Color3.fromRGB(50,50,50)}):Play()
+						end)
+
 						Frame.InputBegan:Connect(function(Input)
 							if Input.UserInputType == Enum.UserInputType.MouseButton1 and Input.UserInputState == Enum.UserInputState.Begin and (not Debounce) then		
 								Debounce = true
@@ -1742,7 +1886,9 @@ function UILib:CreateUI()
 									TweenTime,
 									false,
 									function()
-										game.TweenService:Create(UIStroke, TweenInfo.new(TweenTime), {Color=Color3.fromRGB(50,50,50)}):Play()
+										if not isHovering then
+											game.TweenService:Create(UIStroke, TweenInfo.new(TweenTime), {Color=Color3.fromRGB(50,50,50)}):Play()
+										end
 										Frame:TweenSize(
 											UDim2.new(0.271149337, 0, 0.75, 0),
 											Enum.EasingDirection.Out,
@@ -1771,6 +1917,24 @@ function UILib:CreateUI()
 							end
 						end)
 					end
+					
+					-- Unfinished Functions
+					function Dropdown:GetItems()
+						
+					end
+					
+					function Dropdown:RemoveItem()
+						
+					end
+					
+					function Dropdown:UpdateItems()
+						
+					end
+					
+					function Dropdown:Toggle(isOpen)
+						
+					end
+					--Unfinished Functions
 
 					return Dropdown
 				end
@@ -1796,7 +1960,7 @@ function UILib:CreateUI()
 					Slider.Name = "Slider"
 					Slider.Parent = NestedDropDown
 					Slider.AnchorPoint = Vector2.new(0.5, 0)
-					Slider.BackgroundColor3 = Color3.new(0.156863, 0.156863, 0.156863)
+					Slider.BackgroundColor3 = Color3.new(0.176471, 0.176471, 0.176471)
 					Slider.BorderColor3 = Color3.new(0.137255, 0.137255, 0.137255)
 					Slider.BorderSizePixel = 0
 					Slider.Position = UDim2.new(0.44607842, 0, 0.540000021, 0)
@@ -1827,7 +1991,8 @@ function UILib:CreateUI()
 					Frame.BorderColor3 = Color3.new(0, 0, 0)
 					Frame.BorderSizePixel = 0
 					Frame.Position = UDim2.new(0.980000019, 0, 0.491577536, 0)
-					Frame.Size = UDim2.new(0.487930983, 0, 0.283155054, 0)
+					--Frame.Size = UDim2.new(0.487930983, 0, 0.283155054, 0)
+					Frame.Size = UDim2.new(0.487930983, 0, 0.5, 0)
 
 					UICorner_2.Parent = Frame
 
@@ -1837,7 +2002,7 @@ function UILib:CreateUI()
 					Frame_2.BorderColor3 = Color3.new(0, 0, 0)
 					Frame_2.BorderSizePixel = 0
 					Frame_2.Position = UDim2.new(0, 0, 0.5, 0)
-					Frame_2.Size = UDim2.new(0.5, 0, 1, 0)
+					Frame_2.Size = UDim2.new(0, 0, 1, 0)
 
 					UICorner_3.Parent = Frame_2
 
@@ -1934,11 +2099,11 @@ function UILib:CreateUI()
 						end)
 					end
 
-
 					local function CalculateMath()
 						local Diff = Mouse.X - Frame.AbsolutePosition.X
 						if Diff < 0 then Diff = 0 end
 						local Math = Diff / Frame.AbsoluteSize.X
+						if Math > 1 then Math = 1 end
 						local Value = tonumber(string.format("%." .. (O or 0) .. "f", (MaxVal*Math)))
 						Frame_2.Size = UDim2.new(
 							Math,0,
@@ -1948,7 +2113,7 @@ function UILib:CreateUI()
 						TextLabel.Text = tostring(Value).."/"..tostring(MaxVal)
 						callback(Value)
 					end
-
+					
 					Frame.InputBegan:Connect(function(Input)
 						if Input.UserInputType == Enum.UserInputType.MouseButton1 and Input.UserInputState == Enum.UserInputState.Begin then
 							QueueClosure()
@@ -1965,9 +2130,13 @@ function UILib:CreateUI()
 								lastInput = tick()
 								CalculateMath()
 							end);CalculateMath()
-							Frame.InputEnded:Wait(Enum.UserInputState.End)
-							Connection:Disconnect()
-							isUsingSlider = false
+							
+							Frame.InputEnded:Connect(function(Input)
+								if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+									Connection:Disconnect()
+									isUsingSlider = false
+								end
+							end)
 						end
 					end)
 
@@ -2003,7 +2172,7 @@ function UILib:CreateUI()
 					LabelFrame.BorderColor3 = Color3.new(0.137255, 0.137255, 0.137255)
 					LabelFrame.BorderSizePixel = 0
 					LabelFrame.Position = UDim2.new(0.5, 0, 0.720000029, 0)
-					LabelFrame.Size = UDim2.new(0, 275, 0, 25)
+					LabelFrame.Size = BaseItemSize_Nested
 
 					UICorner.Parent = LabelFrame
 					UICorner.CornerRadius = UDim.new(0, 5)
@@ -2016,7 +2185,7 @@ function UILib:CreateUI()
 					Title.BorderColor3 = Color3.new(0, 0, 0)
 					Title.BorderSizePixel = 0
 					Title.Position = UDim2.new(0.5, 0, 0.5, 0)
-					Title.Size = UDim2.new(1, 0, 0.600000024, 0)
+					Title.Size = UDim2.new(1, 0, 0.4500000024, 0)
 					Title.Font = Enum.Font.FredokaOne
 					Title.Text = LabelText
 					Title.TextColor3 = Custom.Color or Color3.new(0.686275, 0.686275, 0.686275)
@@ -2082,6 +2251,10 @@ function UILib:CreateUI()
 					Frame.BorderSizePixel = 0
 					Frame.Position = UDim2.new(0.980000019, 0, 0.49782753, 0)
 					Frame.Size = UDim2.new(0.208620682, 0, 0.545655072, 0)
+					
+					local Stroke = Instance.new("UIStroke", Frame)
+					Stroke.Color = Color3.fromRGB(50,50,50)
+
 
 					UICorner_2.Parent = Frame
 
@@ -2179,6 +2352,17 @@ function UILib:CreateUI()
 					local Mult = 0.9
 					local TweenTime = 0.05
 					local Debounce = false
+					local isHovering = false
+
+					Frame.MouseEnter:Connect(function()
+						isHovering = true
+						game.TweenService:Create(UIStroke, TweenInfo.new(TweenTime), {Color=Color3.fromRGB(0,155,255)}):Play()
+					end)
+					Frame.MouseLeave:Connect(function()
+						isHovering = false
+						game.TweenService:Create(UIStroke, TweenInfo.new(TweenTime), {Color=Color3.fromRGB(50,50,50)}):Play()
+					end)
+
 					Frame.InputBegan:Connect(function(Input)
 						if Input.UserInputType == Enum.UserInputType.MouseButton1 and Input.UserInputState == Enum.UserInputState.Begin and (not Debounce) then		
 							Debounce = true
@@ -2191,7 +2375,9 @@ function UILib:CreateUI()
 								TweenTime,
 								false,
 								function()
-									game.TweenService:Create(UIStroke, TweenInfo.new(TweenTime), {Color=Color3.fromRGB(50,50,50)}):Play()
+									if not isHovering then
+										game.TweenService:Create(UIStroke, TweenInfo.new(TweenTime), {Color=Color3.fromRGB(50,50,50)}):Play()
+									end
 									Frame:TweenSize(
 										UDim2.new(0.271149337, 0, 0.75, 0),
 										Enum.EasingDirection.Out,
@@ -2209,6 +2395,7 @@ function UILib:CreateUI()
 
 				function NestedSection:Toggle(ToggleTitle, isToggled, callback)
 					callback = callback or function() end
+					local isToggled = not isToggled
 					local Toggle = Instance.new("Frame")
 					table.insert(sectionedElements, Toggle)
 					local UICorner = Instance.new("UICorner")
@@ -2236,8 +2423,10 @@ function UILib:CreateUI()
 					Title.BackgroundTransparency = 1
 					Title.BorderColor3 = Color3.new(0, 0, 0)
 					Title.BorderSizePixel = 0
-					Title.Position = UDim2.new(0.0231545795, 0, 0.5, 0)
-					Title.Size = UDim2.new(0, 226, 0, 16)
+					--Title.Position = UDim2.new(0.0231545795, 0, 0.5, 0)
+					--Title.Size = UDim2.new(0, 226, 0, 16)
+					Title.Position = UDim2.new(0.05, 0, 0.5, 0)
+					Title.Size = UDim2.new(0.667221844, 0, 0.5, 0)
 					Title.Font = Enum.Font.FredokaOne
 					Title.Text = ToggleTitle or "Toggle"
 					Title.TextColor3 = Color3.new(0.784314, 0.784314, 0.784314)
@@ -2290,7 +2479,7 @@ function UILib:CreateUI()
 
 					local toggleIsOn = isToggled or false
 					local DBx = false
-					Frame.MouseButton1Click:Connect(function()
+					local function Togglex()
 						if not DBx then
 							DBx = true
 							toggleIsOn = not toggleIsOn
@@ -2302,7 +2491,11 @@ function UILib:CreateUI()
 								game.TweenService:Create(UIStroke, TweenInfo.new(.1), {Color=Color3.fromRGB(50,50,50)}):Play()
 							end
 						end
+					end
+					Frame.MouseButton1Click:Connect(function()
+						Togglex()
 					end)
+					Togglex()
 
 					return Toggle
 				end
